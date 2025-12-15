@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#0b0f14" />
+  <title>Project Life Goal</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+
+  <style>
+    :root{
+      --bg:#0b0f14; --card:#111827; --line:#1f2937;
+      --text:#e5e7eb; --muted:#9ca3af;
+      --accent:#60a5fa; --good:#22c55e; --warn:#f59e0b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; padding:16px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 25% 15%, rgba(96,165,250,.18), transparent 60%),
+        radial-gradient(900px 500px at 75% 20%, rgba(34,197,94,.12), transparent 55%),
+        var(--bg);
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px}
+    h1{margin:0;font-size:1.2rem}
+    .sub{color:var(--muted);margin-top:4px}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+    @media(min-width:900px){.grid{grid-template-columns:1.2fr .8fr}}
+    .card{
+      background:rgba(17,24,39,.82);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:14px;
+      box-shadow:0 12px 30px rgba(0,0,0,.25);
+    }
+    .row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+    .pill{
+      border:1px solid var(--line);
+      background:rgba(11,15,20,.35);
+      border-radius:999px;
+      padding:7px 10px;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+    .bigTimer{font-size:2.4rem;font-weight:900;letter-spacing:.5px;}
+    .muted{color:var(--muted)}
+    .btnRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{
+      cursor:pointer;border:1px solid var(--line);
+      background:rgba(11,15,20,.45);color:var(--text);
+      padding:10px 12px;border-radius:12px;font-weight:750;
+    }
+    button:hover{border-color:rgba(96,165,250,.65)}
+    button.primary{background:rgba(96,165,250,.18); border-color:rgba(96,165,250,.55)}
+    button.warn{background:rgba(245,158,11,.12); border-color:rgba(245,158,11,.35)}
+    .bar{
+      width:100%;height:12px;border-radius:999px;overflow:hidden;
+      border:1px solid var(--line);background:rgba(11,15,20,.35)
+    }
+    .bar>div{height:100%;width:0%;background:linear-gradient(90deg,var(--good),var(--accent));transition:width .2s ease}
+    .exerciseTitle{font-size:1.08rem;font-weight:900;margin:0}
+    .tip{
+      margin-top:10px;border-left:4px solid rgba(96,165,250,.6);
+      background:rgba(96,165,250,.08);padding:10px 12px;border-radius:12px;
+    }
+    .goodBox{
+      margin-top:10px;border-left:4px solid rgba(34,197,94,.6);
+      background:rgba(34,197,94,.08);padding:10px 12px;border-radius:12px;
+    }
+    canvas{
+      width:100%;height:260px;border-radius:14px;border:1px solid var(--line);
+      background:rgba(11,15,20,.35);display:block;
+    }
+    .queue{
+      margin-top:12px;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:14px;
+    }
+    .qitem{
+      display:flex;justify-content:space-between;gap:10px;
+      padding:10px 12px;border-top:1px solid var(--line);
+      color:var(--muted);font-size:.92rem;
+    }
+    .qitem:first-child{border-top:none}
+    .qitem.active{color:var(--text); background:rgba(96,165,250,.08)}
+    .qleft{display:flex;flex-direction:column;gap:2px}
+    .small{font-size:.85rem;color:var(--muted)}
+    .settings{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .toggle{
+      display:flex;align-items:center;justify-content:space-between;
+      border:1px solid var(--line);border-radius:12px;padding:10px 12px;
+      background:rgba(11,15,20,.35);color:var(--muted);font-size:.92rem;
+    }
+    input[type="checkbox"]{transform:scale(1.2)}
+    a.linkBtn{
+      display:inline-block;text-decoration:none;
+      border:1px solid rgba(96,165,250,.45);
+      background:rgba(96,165,250,.10);
+      color:var(--text);padding:8px 10px;border-radius:12px;font-weight:750;
+    }
+    a.linkBtn:hover{border-color:rgba(96,165,250,.8)}
+    .week{margin-top:10px;display:grid;grid-template-columns:repeat(7,1fr);gap:8px;}
+    .day{
+      border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center;
+      background:rgba(11,15,20,.35);color:var(--muted);font-size:.9rem;
+    }
+    .day.today{border-color:rgba(96,165,250,.6); color:var(--text); background:rgba(96,165,250,.08)}
+    .day.rest{border-color:rgba(245,158,11,.35); background:rgba(245,158,11,.06)}
+    .day.done{border-color:rgba(34,197,94,.55); background:rgba(34,197,94,.08); color:var(--text)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>💪 Project Life Goal</h1>
+        <div class="sub">Installable app • Offline • Saves progress • Voice + beeps • Stick figure demo</div>
+      </div>
+      <div class="row">
+        <div class="pill" id="streakPill">🔥 Streak: 0</div>
+        <div class="pill" id="todayPill">📅 Today: —</div>
+        <div class="pill">🗓️ 6 days/week (Sun rest)</div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- PLAYER -->
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="exerciseTitle" id="exName">Ready</div>
+            <div class="muted" id="exDesc">Hit Start when you’re set.</div>
+            <div style="margin-top:10px">
+              <a class="linkBtn" id="howToLink" href="#" target="_blank" rel="noreferrer">🎥 How to do it</a>
+            </div>
+          </div>
+          <div style="text-align:right">
+            <div class="bigTimer" id="timeLeft">00:00</div>
+            <div class="small"><span id="phaseLabel">—</span> • <span id="totalLeft">Total left: 00:00</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <div class="bar"><div id="progressFill"></div></div>
+          <div class="row" style="margin-top:8px">
+            <div class="muted" id="progressText">0% complete</div>
+            <div class="small muted">Space Start/Pause • N Next • R Reset</div>
+          </div>
+        </div>
+
+        <div class="btnRow">
+          <button class="primary" id="startPause">Start</button>
+          <button id="next">Next</button>
+          <button class="warn" id="restartStep">Restart Step</button>
+          <button id="reset">Reset All</button>
+        </div>
+
+        <div class="settings">
+          <div class="toggle"><span>🔊 Beeps</span><input id="beepsOn" type="checkbox" checked></div>
+          <div class="toggle"><span>🗣️ Voice cues</span><input id="voiceOn" type="checkbox" checked></div>
+        </div>
+
+        <div style="margin-top:12px">
+          <canvas id="demo" width="900" height="520"></canvas>
+        </div>
+
+        <div class="tip">
+          <b>Form Tip:</b>
+          <div class="muted" id="exTip">Smooth reps. If something hurts sharp (not normal burn), swap it.</div>
+        </div>
+
+        <div class="goodBox" id="doneBox" style="display:none">
+          <b>DONE ✅</b>
+          <div class="muted">Workout complete. Streak updated. Hydrate and chill.</div>
+        </div>
+      </div>
+
+      <!-- QUEUE + WEEK -->
+      <div class="card">
+        <div class="row">
+          <div>
+            <div style="font-weight:900">Up Next</div>
+            <div class="muted">Exact order the app runs.</div>
+          </div>
+          <div class="pill">💾 Auto-saves</div>
+        </div>
+
+        <div class="queue" id="queue"></div>
+
+        <div class="tip" style="margin-top:12px">
+          <b>Weekly schedule</b>
+          <div class="muted">Mon–Sat workout, Sunday rest. Completing today marks ✅</div>
+          <div class="week" id="weekGrid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========= PLAN (timed Project Life Goal) ========= */
+const plan = [
+  { phase:"Warm-up", name:"Jump Rope", desc:"Easy pace.", tip:"Elbows close, wrists do the work.", secs:60, pose:"jumprope", how:"https://www.youtube.com/results?search_query=jump+rope+basics" },
+  { phase:"Warm-up", name:"Arm Circles", desc:"Small → big circles.", tip:"Shoulders down.", secs:30, pose:"arms", how:"https://www.youtube.com/results?search_query=arm+circles+warm+up" },
+  { phase:"Warm-up", name:"High Knees", desc:"Drive knees up.", tip:"Core tight.", secs:60, pose:"highknees", how:"https://www.youtube.com/results?search_query=high+knees+exercise+form" },
+  { phase:"Warm-up", name:"Bodyweight Squats", desc:"Controlled squats.", tip:"Heels down, chest up.", secs:60, pose:"squat", how:"https://www.youtube.com/results?search_query=bodyweight+squat+proper+form" },
+  { phase:"Warm-up", name:"Jumping Jacks", desc:"Full body warm-up.", tip:"Soft landings.", secs:60, pose:"jacks", how:"https://www.youtube.com/results?search_query=jumping+jacks+proper+form" },
+  { phase:"Warm-up", name:"Light Stretch", desc:"Hips + shoulders.", tip:"No bouncing.", secs:30, pose:"stretch", how:"https://www.youtube.com/results?search_query=quick+stretch+hips+shoulders" },
+
+  { phase:"Legs + Glutes", name:"Squats", desc:"Steady reps.", tip:"Sit back like a chair.", secs:60, pose:"squat", how:"https://www.youtube.com/results?search_query=bodyweight+squat+proper+form" },
+  { phase:"Legs + Glutes", name:"Rest", desc:"Shake legs out.", tip:"Breathe.", secs:30, pose:"rest", how:"#" },
+  { phase:"Legs + Glutes", name:"Wall Sit", desc:"Hold.", tip:"Back flat.", secs:45, pose:"wallsit", how:"https://www.youtube.com/results?search_query=wall+sit+exercise+form" },
+  { phase:"Legs + Glutes", name:"Rest", desc:"Recover.", tip:"Deep breaths.", secs:30, pose:"rest", how:"#" },
+  { phase:"Legs + Glutes", name:"Reverse Lunges", desc:"Alternate legs.", tip:"Front heel down.", secs:60, pose:"lunge", how:"https://www.youtube.com/results?search_query=reverse+lunge+proper+form" },
+  { phase:"Legs + Glutes", name:"Rest", desc:"Recover.", tip:"Stay loose.", secs:30, pose:"rest", how:"#" },
+  { phase:"Legs + Glutes", name:"Jump Squats", desc:"Explode up.", tip:"If knees hurt, do normal squats.", secs:45, pose:"jumpsquat", how:"https://www.youtube.com/results?search_query=jump+squat+proper+form" },
+  { phase:"Legs + Glutes", name:"Rest", desc:"Recover.", tip:"In 4, out 6.", secs:30, pose:"rest", how:"#" },
+  { phase:"Legs + Glutes", name:"Squats", desc:"One more minute.", tip:"Quality reps.", secs:60, pose:"squat", how:"https://www.youtube.com/results?search_query=bodyweight+squat+proper+form" },
+  { phase:"Legs + Glutes", name:"Wall Sit", desc:"Hold again.", tip:"Don’t fold.", secs:45, pose:"wallsit", how:"https://www.youtube.com/results?search_query=wall+sit+exercise+form" },
+  { phase:"Legs + Glutes", name:"Rest", desc:"Finish legs.", tip:"Walk around.", secs:30, pose:"rest", how:"#" },
+
+  { phase:"Core", name:"Plank", desc:"Hold.", tip:"Ribs down.", secs:45, pose:"plank", how:"https://www.youtube.com/results?search_query=plank+proper+form" },
+  { phase:"Core", name:"Rest", desc:"Recover.", tip:"Reset.", secs:20, pose:"rest", how:"#" },
+  { phase:"Core", name:"Bicycle Crunches", desc:"Controlled twists.", tip:"Don’t yank neck.", secs:60, pose:"bicycle", how:"https://www.youtube.com/results?search_query=bicycle+crunch+proper+form" },
+  { phase:"Core", name:"Rest", desc:"Recover.", tip:"Breathe.", secs:20, pose:"rest", how:"#" },
+  { phase:"Core", name:"Leg Raises", desc:"Control down.", tip:"Low back down.", secs:60, pose:"legraise", how:"https://www.youtube.com/results?search_query=leg+raises+proper+form" },
+  { phase:"Core", name:"Rest", desc:"Recover.", tip:"Shake out.", secs:20, pose:"rest", how:"#" },
+  { phase:"Core", name:"Russian Twists", desc:"Side to side.", tip:"Move torso.", secs:60, pose:"twist", how:"https://www.youtube.com/results?search_query=russian+twist+proper+form" },
+  { phase:"Core", name:"Rest", desc:"Recover.", tip:"Hydrate.", secs:20, pose:"rest", how:"#" },
+  { phase:"Core", name:"Plank", desc:"Hold again.", tip:"Steady breaths.", secs:45, pose:"plank", how:"https://www.youtube.com/results?search_query=plank+proper+form" },
+  { phase:"Core", name:"Bicycle Crunches", desc:"Another round.", tip:"Slow + clean.", secs:60, pose:"bicycle", how:"https://www.youtube.com/results?search_query=bicycle+crunch+proper+form" },
+  { phase:"Core", name:"Leg Raises", desc:"Another round.", tip:"Control negative.", secs:60, pose:"legraise", how:"https://www.youtube.com/results?search_query=leg+raises+proper+form" },
+
+  { phase:"Upper Body", name:"Push-ups", desc:"Steady reps.", tip:"Drop to knees if needed.", secs:60, pose:"pushup", how:"https://www.youtube.com/results?search_query=push+up+proper+form" },
+  { phase:"Upper Body", name:"Rest", desc:"Recover.", tip:"Roll shoulders.", secs:30, pose:"rest", how:"#" },
+  { phase:"Upper Body", name:"Incline Push-ups", desc:"Hands on chair/bed.", tip:"Body straight.", secs:60, pose:"incline", how:"https://www.youtube.com/results?search_query=incline+push+up+proper+form" },
+  { phase:"Upper Body", name:"Rest", desc:"Recover.", tip:"Breathe.", secs:30, pose:"rest", how:"#" },
+  { phase:"Upper Body", name:"Shoulder Taps", desc:"Tap shoulders.", tip:"Hips still.", secs:60, pose:"shouldertap", how:"https://www.youtube.com/results?search_query=shoulder+taps+proper+form" },
+  { phase:"Upper Body", name:"Rest", desc:"Recover.", tip:"Shake arms.", secs:30, pose:"rest", how:"#" },
+  { phase:"Upper Body", name:"Tricep Dips", desc:"Stable chair.", tip:"Elbows back.", secs:60, pose:"dip", how:"https://www.youtube.com/results?search_query=tricep+dips+chair+proper+form" },
+  { phase:"Upper Body", name:"Rest", desc:"Finish upper.", tip:"Deep breaths.", secs:30, pose:"rest", how:"#" },
+
+  { phase:"Finisher", name:"Jump Rope", desc:"2 minutes.", tip:"Steady rhythm.", secs:120, pose:"jumprope", how:"https://www.youtube.com/results?search_query=jump+rope+basics" },
+  { phase:"Finisher", name:"Burpees", desc:"Timed set.", tip:"Step back if needed.", secs:60, pose:"burpee", how:"https://www.youtube.com/results?search_query=burpee+proper+form" },
+  { phase:"Finisher", name:"Jump Rope", desc:"2 minutes.", tip:"Keep it up.", secs:120, pose:"jumprope", how:"https://www.youtube.com/results?search_query=jump+rope+basics" },
+  { phase:"Finisher", name:"Mountain Climbers", desc:"Fast but controlled.", tip:"Shoulders over wrists.", secs:40, pose:"climber", how:"https://www.youtube.com/results?search_query=mountain+climbers+proper+form" },
+  { phase:"Finisher", name:"Jump Rope", desc:"1 minute.", tip:"Finish strong.", secs:60, pose:"jumprope", how:"https://www.youtube.com/results?search_query=jump+rope+basics" },
+  { phase:"Finisher", name:"Rest", desc:"Optional repeat.", tip:"If you’re cooked, skip. Still a W.", secs:30, pose:"rest", how:"#" },
+
+  { phase:"Cool Down", name:"Hamstring Stretch", desc:"Hold each side.", tip:"No bouncing.", secs:60, pose:"stretch", how:"https://www.youtube.com/results?search_query=hamstring+stretch+proper" },
+  { phase:"Cool Down", name:"Quad Stretch", desc:"Hold each side.", tip:"Squeeze glutes.", secs:60, pose:"stretch", how:"https://www.youtube.com/results?search_query=quad+stretch+standing" },
+  { phase:"Cool Down", name:"Chest/Shoulder Stretch", desc:"Open chest.", tip:"Don’t shrug.", secs:60, pose:"stretch", how:"https://www.youtube.com/results?search_query=chest+shoulder+stretch" },
+  { phase:"Cool Down", name:"Deep Breathing", desc:"2 minutes.", tip:"In 4, out 6.", secs:120, pose:"breathe", how:"https://www.youtube.com/results?search_query=breathing+4+6" },
+];
+
+/* ========= SAVE / STREAK ========= */
+const KEY="plg_pwa_v1";
+const todayStr=()=>{const d=new Date();return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||"{}")}catch{return {}}}
+const save=(o)=>localStorage.setItem(KEY,JSON.stringify(o));
+
+function updateStreakUI(){
+  const s=load();
+  const streak=s.streak||0;
+  const doneToday=(s.doneDate===todayStr());
+  streakPill.textContent=`🔥 Streak: ${streak}`;
+  todayPill.textContent=`📅 Today: ${todayStr()}${doneToday?" ✅":""}`;
+}
+function markDoneToday(){
+  const s=load(); const t=todayStr();
+  if(s.doneDate===t){ updateStreakUI(); renderWeek(); return; }
+  const y=new Date(); y.setDate(y.getDate()-1);
+  const yStr=`${y.getFullYear()}-${String(y.getMonth()+1).padStart(2,"0")}-${String(y.getDate()).padStart(2,"0")}`;
+  const newStreak=(s.doneDate===yStr) ? ((s.streak||0)+1) : 1;
+  save({...s, streak:newStreak, doneDate:t});
+  updateStreakUI(); renderWeek();
+}
+
+/* ========= UI refs ========= */
+const exName=document.getElementById("exName");
+const exDesc=document.getElementById("exDesc");
+const exTip=document.getElementById("exTip");
+const timeLeftEl=document.getElementById("timeLeft");
+const totalLeftEl=document.getElementById("totalLeft");
+const phaseLabel=document.getElementById("phaseLabel");
+const progressFill=document.getElementById("progressFill");
+const progressText=document.getElementById("progressText");
+const startPauseBtn=document.getElementById("startPause");
+const nextBtn=document.getElementById("next");
+const resetBtn=document.getElementById("reset");
+const restartStepBtn=document.getElementById("restartStep");
+const queueEl=document.getElementById("queue");
+const howToLink=document.getElementById("howToLink");
+const doneBox=document.getElementById("doneBox");
+const weekGrid=document.getElementById("weekGrid");
+const beepsOn=document.getElementById("beepsOn");
+const voiceOn=document.getElementById("voiceOn");
+
+/* ========= Timer state ========= */
+let idx=0;
+let remaining=plan[0].secs;
+let running=false;
+let timer=null;
+
+/* ========= Helpers ========= */
+const fmt=(s)=>{s=Math.max(0,Math.floor(s));const m=Math.floor(s/60),r=s%60;return String(m).padStart(2,"0")+":"+String(r).padStart(2,"0");}
+const totalSecondsFrom=(start)=>plan.slice(start).reduce((a,x)=>a+x.secs,0);
+
+/* ========= Beep + voice ========= */
+function beep(freq=700, ms=120){
+  if(!beepsOn.checked) return;
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    const c=new AC();
+    const o=c.createOscillator();
+    const g=c.createGain();
+    o.frequency.value=freq; o.type="sine";
+    o.connect(g); g.connect(c.destination);
+    g.gain.setValueAtTime(0.12,c.currentTime);
+    o.start();
+    setTimeout(()=>{o.stop(); c.close();}, ms);
+  }catch{}
+}
+function speak(text){
+  if(!voiceOn.checked) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(text);
+    u.rate=1.0; u.pitch=1.0;
+    window.speechSynthesis.speak(u);
+  }catch{}
+}
+
+/* ========= Week UI ========= */
+function renderWeek(){
+  const labels=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+  const s=load();
+  const doneToday=(s.doneDate===todayStr());
+  const now=new Date();
+  const jsDay=now.getDay(); // Sun=0
+  const todayIndex=(jsDay===0)?6:jsDay-1;
+
+  weekGrid.innerHTML="";
+  labels.forEach((lab,i)=>{
+    const d=document.createElement("div");
+    d.className="day";
+    d.textContent=lab;
+    if(i===6) d.classList.add("rest");
+    if(i===todayIndex) d.classList.add("today");
+    if(doneToday && i===todayIndex) d.classList.add("done");
+    weekGrid.appendChild(d);
+  });
+}
+
+/* ========= Queue render ========= */
+function renderQueue(){
+  queueEl.innerHTML="";
+  plan.forEach((x,i)=>{
+    const div=document.createElement("div");
+    div.className="qitem"+(i===idx?" active":"");
+    div.innerHTML=`
+      <div class="qleft">
+        <div><b>${x.name}</b> <span class="small">• ${x.phase}</span></div>
+        <div class="small">${x.desc}</div>
+      </div>
+      <div class="small">${fmt(x.secs)}</div>
+    `;
+    queueEl.appendChild(div);
+  });
+}
+
+/* ========= Progress ========= */
+function updateProgress(){
+  const doneSecs=plan.slice(0,idx).reduce((a,x)=>a+x.secs,0);
+  const total=plan.reduce((a,x)=>a+x.secs,0);
+  const pct=Math.round((doneSecs/total)*100);
+  progressFill.style.width=pct+"%";
+  progressText.textContent=`${pct}% complete`;
+  totalLeftEl.textContent="Total left: "+fmt(remaining + totalSecondsFrom(idx+1));
+}
+
+/* ========= Save session ========= */
+function persist(){
+  const s=load();
+  save({...s, idx, remaining, beeps:beepsOn.checked, voice:voiceOn.checked});
+}
+function restore(){
+  const s=load();
+  if(typeof s.beeps==="boolean") beepsOn.checked=s.beeps;
+  if(typeof s.voice==="boolean") voiceOn.checked=s.voice;
+  if(Number.isInteger(s.idx) && s.idx>=0 && s.idx<plan.length) idx=s.idx;
+  remaining=(typeof s.remaining==="number" && s.remaining>0) ? s.remaining : plan[idx].secs;
+}
+
+/* ========= Exercise setter ========= */
+function setExercise(i, announce=true){
+  idx=Math.max(0,Math.min(i,plan.length-1));
+  remaining=plan[idx].secs;
+  const step=plan[idx];
+
+  exName.textContent=step.name;
+  exDesc.textContent=step.desc;
+  exTip.textContent=step.tip;
+  phaseLabel.textContent=step.phase;
+  timeLeftEl.textContent=fmt(remaining);
+
+  howToLink.href=step.how||"#";
+  howToLink.style.display=(step.how && step.how!=="#") ? "inline-block" : "none";
+
+  doneBox.style.display="none";
+
+  renderQueue();
+  updateProgress();
+  drawPose(step.pose);
+
+  if(announce){
+    speak(step.name.toLowerCase()==="rest" ? "Rest." : `Next: ${step.name}. ${step.phase}.`);
+    beep(850,120);
+  }
+  persist();
+}
+
+/* ========= Timer ========= */
+function tick(){
+  if(!running) return;
+  remaining -= 1;
+  timeLeftEl.textContent=fmt(remaining);
+  updateProgress();
+
+  if(remaining===3) beep(900,90);
+  if(remaining===2) beep(950,90);
+  if(remaining===1) beep(1000,90);
+
+  if(remaining<=0){
+    beep(650,140);
+    if(idx < plan.length-1){
+      setExercise(idx+1,true);
+    } else {
+      stop();
+      exName.textContent="DONE ✅";
+      exDesc.textContent="Workout complete. Big W.";
+      exTip.textContent="Hydrate + stretch a little extra if you want.";
+      phaseLabel.textContent="Finished";
+      drawPose("win");
+      doneBox.style.display="block";
+      markDoneToday();
+      // reset saved workout progress but keep streak
+      const s=load();
+      save({...s, idx:0, remaining:plan[0].secs});
+    }
+  } else {
+    if(remaining % 10 === 0) persist();
+  }
+}
+function start(){
+  if(running) return;
+  running=true;
+  startPauseBtn.textContent="Pause";
+  speak("Start.");
+  beep(800,120);
+  timer=setInterval(tick,1000);
+}
+function stop(){
+  running=false;
+  startPauseBtn.textContent="Start";
+  if(timer){clearInterval(timer); timer=null;}
+  persist();
+}
+function toggle(){ running ? stop() : start(); }
+function next(){ if(idx < plan.length-1) setExercise(idx+1,true); }
+function restartStep(){
+  remaining=plan[idx].secs;
+  timeLeftEl.textContent=fmt(remaining);
+  speak("Restart step.");
+  beep(750,120);
+  persist();
+}
+function resetAll(){
+  stop();
+  setExercise(0,false);
+  progressFill.style.width="0%";
+  progressText.textContent="0% complete";
+  speak("Reset.");
+  beep(600,150);
+}
+
+/* ========= Controls ========= */
+startPauseBtn.addEventListener("click",toggle);
+nextBtn.addEventListener("click",next);
+restartStepBtn.addEventListener("click",restartStep);
+resetBtn.addEventListener("click",resetAll);
+
+window.addEventListener("keydown",(e)=>{
+  if(e.code==="Space"){e.preventDefault(); toggle();}
+  if(e.key.toLowerCase()==="n"){next();}
+  if(e.key.toLowerCase()==="r"){resetAll();}
+});
+
+beepsOn.addEventListener("change",persist);
+voiceOn.addEventListener("change",persist);
+
+/* ========= Stick figure demo ========= */
+const canvas=document.getElementById("demo");
+const ctx=canvas.getContext("2d");
+
+function clearCanvas(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.strokeStyle="rgba(229,231,235,.18)";
+  ctx.lineWidth=6;
+  ctx.beginPath(); ctx.moveTo(90,430); ctx.lineTo(810,430); ctx.stroke();
+}
+function line(x1,y1,x2,y2,w=10){
+  ctx.lineWidth=w; ctx.lineCap="round";
+  ctx.strokeStyle="rgba(200,200,200,.95)";
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+}
+function circle(x,y,r){
+  ctx.fillStyle="rgba(200,200,200,.95)";
+  ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+}
+function drawPose(pose){
+  clearCanvas();
+  const cx=450, headY=140;
+  const neck={x:cx,y:headY+38};
+  const hip={x:cx,y:300};
+
+  const label=(txt)=>{
+    ctx.fillStyle="rgba(229,231,235,.75)";
+    ctx.font="28px system-ui,-apple-system,Segoe UI,Roboto,Arial";
+    ctx.fillText("Demo: "+txt,24,46);
+  };
+
+  if(pose==="plank"||pose==="pushup"||pose==="shouldertap"||pose==="climber"){
+    circle(cx-170,300,26);
+    ctx.strokeStyle="rgba(200,200,200,.95)"; ctx.lineWidth=14; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(cx-145,315); ctx.lineTo(cx+160,315); ctx.stroke();
+    // arms
+    if(pose==="pushup"){
+      line(cx-70,315,cx-85,390,12); line(cx-85,390,cx-70,430,12);
+      line(cx-20,315,cx-35,390,12); line(cx-35,390,cx-20,430,12);
+    } else if(pose==="shouldertap"){
+      line(cx-70,315,cx-70,430,12);
+      line(cx-20,315,cx+10,280,12);
+    } else {
+      line(cx-70,315,cx-70,430,12);
+      line(cx-20,315,cx-20,430,12);
+    }
+    // legs
+    if(pose==="climber"){
+      line(cx+90,315,cx+65,410,14); line(cx+65,410,cx+110,430,14);
+      line(cx+140,315,cx+190,430,14);
+    } else {
+      line(cx+90,315,cx+140,430,14);
+      line(cx+140,315,cx+190,430,14);
+    }
+    label(pose); return;
+  }
+
+  // standing base
+  circle(cx,headY,32);
+  line(neck.x,neck.y,hip.x,hip.y,14);
+
+  const poses={
+    rest:()=>{ line(neck.x,neck.y+10,cx-85,260,12); line(neck.x,neck.y+10,cx+85,260,12);
+               line(hip.x,hip.y,cx-55,430,14); line(hip.x,hip.y,cx+55,430,14); },
+    arms:()=>{ line(neck.x,neck.y+5,cx-150,210,12); line(neck.x,neck.y+5,cx+150,210,12);
+               line(hip.x,hip.y,cx-55,430,14); line(hip.x,hip.y,cx+55,430,14); },
+    jacks:()=>{ line(neck.x,neck.y,cx-130,120,12); line(neck.x,neck.y,cx+130,120,12);
+                line(hip.x,hip.y,cx-110,430,14); line(hip.x,hip.y,cx+110,430,14); },
+    highknees:()=>{ line(neck.x,neck.y+10,cx-110,220,12); line(neck.x,neck.y+10,cx+90,200,12);
+                    line(hip.x,hip.y,cx-60,430,14);
+                    line(hip.x,hip.y,cx+40,360,14); line(cx+40,360,cx+90,430,14); },
+    jumprope:()=>{ line(neck.x,neck.y+15,cx-120,250,12); line(neck.x,neck.y+15,cx+120,250,12);
+                   line(hip.x,hip.y,cx-35,430,14); line(hip.x,hip.y,cx+35,430,14);
+                   ctx.strokeStyle="rgba(96,165,250,.7)"; ctx.lineWidth=6;
+                   ctx.beginPath(); ctx.arc(cx,285,180,Math.PI*0.1,Math.PI*0.9); ctx.stroke(); },
+    squat:()=>{ line(neck.x,neck.y+25,cx-120,240,12); line(neck.x,neck.y+25,cx+120,240,12);
+                line(hip.x,hip.y,cx-70,380,14); line(cx-70,380,cx-40,430,14);
+                line(hip.x,hip.y,cx+70,380,14); line(cx+70,380,cx+40,430,14); },
+    jumpsquat:()=>{ line(neck.x,neck.y+25,cx-120,240,12); line(neck.x,neck.y+25,cx+120,240,12);
+                    line(hip.x,hip.y,cx-70,380,14); line(cx-70,380,cx-40,410,14);
+                    line(hip.x,hip.y,cx+70,380,14); line(cx+70,380,cx+40,410,14);
+                    ctx.fillStyle="rgba(0,0,0,.25)"; ctx.beginPath(); ctx.ellipse(cx,435,90,18,0,0,Math.PI*2); ctx.fill(); },
+    lunge:()=>{ line(neck.x,neck.y+10,cx-85,260,12); line(neck.x,neck.y+10,cx+85,260,12);
+                line(hip.x,hip.y,cx-80,430,14); line(hip.x,hip.y,cx+30,360,14); line(cx+30,360,cx+120,430,14); },
+    wallsit:()=>{ ctx.strokeStyle="rgba(229,231,235,.18)"; ctx.lineWidth=10;
+                  ctx.beginPath(); ctx.moveTo(260,120); ctx.lineTo(260,430); ctx.stroke();
+                  line(neck.x-40,neck.y+10,hip.x-40,hip.y,14);
+                  line(neck.x-40,neck.y+65,cx-120,265,12); line(neck.x-40,neck.y+65,cx+20,265,12);
+                  line(hip.x-40,hip.y,cx-40,340,14); line(cx-40,340,cx-40,430,14);
+                  line(hip.x-40,hip.y,cx+40,340,14); line(cx+40,340,cx+40,430,14); },
+    win:()=>{ line(neck.x,neck.y,cx-140,120,12); line(neck.x,neck.y,cx+140,120,12);
+              line(hip.x,hip.y,cx-65,430,14); line(hip.x,hip.y,cx+65,430,14); }
+  };
+
+  (poses[pose]||poses.rest)();
+  label(pose);
+}
+
+/* ========= PWA service worker register ========= */
+if("serviceWorker" in navigator){
+  window.addEventListener("load", async ()=>{
+    try{ await navigator.serviceWorker.register("sw.js"); }catch{}
+  });
+}
+
+/* ========= Init ========= */
+restore();
+updateStreakUI();
+renderWeek();
+setExercise(idx,false);
+</script>
+</body>
+</html>
